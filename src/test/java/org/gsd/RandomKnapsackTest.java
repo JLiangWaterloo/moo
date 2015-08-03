@@ -23,11 +23,11 @@ import org.junit.Test;
  *
  * @author jimmy
  */
-public class RandomKnapsack {
+public class RandomKnapsackTest {
 
     private static List<Path> filesInDirectory(String resource) throws IOException, URISyntaxException {
         List<Path> files = new ArrayList<>();
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(RandomKnapsack.class.getResource(resource).toURI()))) {
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(RandomKnapsackTest.class.getResource(resource).toURI()))) {
             directoryStream.forEach(files::add);
         }
         return files;
