@@ -8,10 +8,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.SolverFactory;
 import org.chocosolver.solver.constraints.ICF;
 import org.chocosolver.solver.search.loop.monitors.IMonitorOpenNode;
+import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.VF;
 
@@ -112,7 +114,7 @@ public class RunKnapsack {
             throw new IOException();
         }
 
-        IntVar[] occurences = VF.enumeratedArray("occurences", objects, 0, 50, solver);
+        BoolVar[] occurences = VF.boolArray("occurences", objects, solver);
         IntVar totalWeight = VF.enumerated("totalWeight", 0, capacity, solver);
         IntVar[] totalEnergies = new IntVar[energies.length];
         for (int i = 0; i < energies.length; i++) {
@@ -123,14 +125,13 @@ public class RunKnapsack {
     }
 
     public static void main(String[] args) throws IOException, URISyntaxException {
-        int k = Integer.parseInt(args[0]);
-        Path path = Paths.get(args[1]);
+        Path path = Paths.get(args[0]);
         Solver solver = SolverFactory.makeSolver();
 
         Pair pair = parseKnapsack(Files.newBufferedReader(path), solver);
         IntVar[] objectives = pair.totalEnergies;
 
-        long timeout = 3 * 60 * 60 * 1000;
+        long timeout = 10 * 60 * 1000;
         long start = System.currentTimeMillis();
         solver.plugMonitor(new IMonitorOpenNode() {
 
@@ -146,15 +147,15 @@ public class RunKnapsack {
             }
         });
 
-        String out;
-        if (k == 0) {
-            out = "gia " + objectives.length + " " + pair.objects + " " + Moo.gia(solver, objectives);
-        } else if (k == 1) {
-            out = "classic " + objectives.length + " " + pair.objects + " " + Moo.classic(solver, objectives).size();
-        } else {
-            out = "oia " + objectives.length + " " + pair.objects + " " + Moo.oia(solver, objectives).size();
-        }
+        List<int[]> paretoFront = Moo.oia(solver, objectives);
         long time = System.currentTimeMillis() - start;
+        String out = "oia " + objectives.length + " " + pair.objects + " " + paretoFront.size() + " " + solver.getMeasures().getSolutionCount();
         System.out.println(out + " " + time + " " + (time > timeout));
+        for (int[] paretoPoint : paretoFront) {
+            for (int p : paretoPoint) {
+                System.out.print(p + " ");
+            }
+            System.out.println(";");
+        }
     }
 }

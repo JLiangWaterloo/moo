@@ -148,7 +148,7 @@ public class RandomKnapsackTest {
 
                     @Override
                     public void beforeOpenNode() {
-                        if (System.currentTimeMillis() - start > 3000) {
+                        if (System.currentTimeMillis() - start > 30000) {
                             solver.getSearchLoop().interrupt("Times up", true);
                         }
                     }
@@ -164,7 +164,7 @@ public class RandomKnapsackTest {
                 } else if (k == 1) {
                     out = "classic " + objectives.length + " " + pair.objects + " " + Moo.classic(solver, objectives).size();
                 } else {
-                    out = "oia " + objectives.length + " " + pair.objects + " " + Moo.oia(solver, objectives).size();
+                    out = "oia " + objectives.length + " " + pair.objects + " " + Moo.oia(solver, objectives).size() + " " + solver.getMeasures().getSolutionCount();
                 }
                 boolean limit = solver.hasReachedLimit();
                 long time = System.currentTimeMillis() - start;
